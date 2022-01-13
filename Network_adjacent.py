@@ -26,9 +26,13 @@ text1.pack()
 
 spacialMatrix='空间矩阵.xlsx'#
 flowData=''
-adjacent_table = pd.read_excel(r'{}'.format(spacialMatrix))
-file_text = '空间矩阵shape：{0}*{1}\n'.format(adjacent_table.shape[0],adjacent_table.shape[1])
-text1.insert('insert', file_text)
+timeFlowData=''
+try:
+    adjacent_table = pd.read_excel(r'{}'.format(spacialMatrix))
+    file_text = '空间矩阵shape：{0}*{1}\n'.format(adjacent_table.shape[0],adjacent_table.shape[1])
+    text1.insert('insert', file_text)
+except:
+    print("请检查当前路径含有'空间矩阵.xlsx'")
 
 
 def open_file():
@@ -55,7 +59,10 @@ def confrim():
     print('保存文件：', file_path)
     file_text = text1.get('1.0', tk.END)
     start()
-    print('保存完成:'+'{}_resualt.xlsx'.format(flowData[:flowData.find('.')]))
+    if(flowData!=''):
+        print('保存完成:'+'{}_resualt.xlsx'.format(flowData[:flowData.find('.')]))
+    else:
+        print('至少输入一个文件')
 
 
 
@@ -77,6 +84,16 @@ def get_AdjacentFlow(origin,destination):
         print(netAdjacentList)
         for j in netAdjacentList:
             W_OR.loc[ID,j]=1
+
+
+def timeAdjacentFlow(origin,destination):
+    ID=flow[flow['转出地'].str.contains(origin) & flow['转入地'].str.contains(destination)]['ID']
+    destinationFlow=adjacent_table.loc[adjacent_table.index.str.contains(destination)]
+    if(destinationFlow.empty):
+        print('it is empty')
+    else:
+        pass
+
 
 def start():
     global flow
