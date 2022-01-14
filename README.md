@@ -9,6 +9,8 @@
 >
 > -i	图标
 >
-> --upx-dir	UPX压缩
+> --upx-dir	[UPX压缩](https://github.com/upx/upx/releases/tag/v3.96)
 
 pyinstaller --clean -F -i  .\favicon.ico .\网络相邻.py --upx-dir=D:\env\upx-3.96-win64\upx.exe
+
+![image-20220114104654683](img/image-20220114104654683.png)
