@@ -80,7 +80,7 @@ def start():
         except:
             print('出错了')
     T_OR.replace(0, np.nan).dropna(axis=0, how='all').dropna(axis=1, how='all').fillna(
-        value=0).to_excel('{}结果.xlsx'.format(timeflowDataName[:timeflowDataName.find('.')]))
+        value=0).to_excel('时间近邻结果.xlsx')
 
 
 def confrim():
@@ -90,7 +90,7 @@ def confrim():
         text1.insert('insert', '请输入两种文件\n')
     else:
         start()
-        print('保存完成:\n'+"{}结果.xlsx".format(timeflowDataName[:timeflowDataName.find('.')]))
+        print('保存完成:\n'+"时间近邻结果.xlsx")
 
 
 bt1 = tk.Button(window, text='选择网络近邻文件', width=15,
