@@ -17,10 +17,16 @@ window.geometry('500x500')  # 窗口尺寸
 text1 = tk.Text(window, width=50, height=10, bg='grey', font=('Arial', 12))
 text1.pack()
 
-
+#读入
 network_adjacentName = ''
 timeflowDataName = ''
 
+
+spacialMatrix='空间矩阵.xlsx'
+flowData='SERVT.xlsx'
+spacialflow=pd.read_excel(r'{}'.format(spacialMatrix))
+flow = pd.read_excel(r'{}'.format(flowData))
+flow=flow.fillna(value=0)
 
 file_text = '需要输入网络的近邻文件&流的年份\n'
 text1.insert('insert', file_text)

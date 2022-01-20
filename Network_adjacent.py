@@ -25,6 +25,8 @@ spacialMatrix='空间矩阵.xlsx'#
 flowData=''
 timeFlowData=''
 
+spacialflow=pd.read_excel(r'{}'.format(spacialMatrix))
+
 
 
 def readSpacialMatrix(spacialMatrixName):
@@ -50,6 +52,9 @@ def open_file():
         print('打开流文件：', flowData)
         try:
             flow = pd.read_excel(r'{}'.format(flowData))
+            flow=flow.fillna(value=0)
+            CreatSpatialDict(spacialflow)
+            text1.insert('insert', "sp_dict建立成功\n")
         except:
             print('请选择空间矩阵文件')
             return
@@ -69,39 +74,31 @@ def confrim():
     if(flowData!=''):
         start()
         print('保存完成:'+'{}_resualt.xlsx'.format(flowData[:flowData.find('.')]))
-        print('保存文件：', file_path)
     else:
         text1.insert('insert','至少输入一个文件\n')
 
 
 
+def CreatSpatialDict(spacialflow):
+    citys=spacialflow.columns
+    global sp_dict
+    sp_dict={}
+    for row in spacialflow.itertuples():
+        stocks_list=list(row)
+        ad_index=[x-1 for x in range(len(stocks_list)) if stocks_list[x]==1]
+        sp_dict[row[0]]=list(citys[ad_index])
+    print('sp_dict建立成功')
+    
 
+def getAdjacentFlow(origin, destination):
+    Adlist=[]
+    sameOri=flow[flow['转出地'].str.contains(origin)]
+    sameDes=flow[flow['转入地'].str.contains(destination)]
+    Adlist1=sameOri[sameOri['转入地'].isin(sp_dict[destination])].ID.tolist()
+    Adlist2=sameDes[sameDes['转出地'].isin(sp_dict[origin])].ID.tolist()
+    Adlist=Adlist1+Adlist2
+    return Adlist
 
-def get_AdjacentFlow(origin,destination):
-    ID=flow[flow['转出地'].str.contains(origin) & flow['转入地'].str.contains(destination)]['ID']
-    destinationFlow=adjacent_table.loc[adjacent_table.index.str.contains(destination)]
-    if(destinationFlow.empty):
-        print('it is empty')
-    else:
-        spacialDes=destinationFlow.T.dropna().T
-        netAdjacent1=flow[flow['转出地'].str.contains(origin) & flow['转入地'].isin(spacialDes.columns.tolist())]
-        originFlow=adjacent_table.loc[adjacent_table.index.str.contains(origin)]
-        adjacentOri=destinationFlow.T.dropna().T
-        spacialOri=adjacent_table.loc[adjacent_table.index.str.contains(origin)].T.dropna().T
-        netAdjacent2=flow[flow['转出地'].isin(spacialOri.columns.tolist()) & flow['转入地'].str.contains(destination)]
-        netAdjacentList=pd.concat([netAdjacent1,netAdjacent2],axis=0,join='inner')['ID'].tolist()
-        print(netAdjacentList)
-        for j in netAdjacentList:
-            W_OR.loc[ID,j]=1
-
-
-def timeAdjacentFlow(origin,destination):
-    ID=flow[flow['转出地'].str.contains(origin) & flow['转入地'].str.contains(destination)]['ID']
-    destinationFlow=adjacent_table.loc[adjacent_table.index.str.contains(destination)]
-    if(destinationFlow.empty):
-        print('it is empty')
-    else:
-        pass
 
 readSpacialMatrix(spacialMatrix)
 def start():
@@ -110,13 +107,15 @@ def start():
     
     W_OR = pd.DataFrame(index=(i for i in range(1, flow.shape[0] + 1)),
                         columns=([i for i in range(1, flow.shape[0] + 1)]))
-    for index, row in flow.iterrows():
+    for row in flow.itertuples():
         try:
-            get_AdjacentFlow(row.转出地,row.转入地)
-            continue
-        except:
-            print('出错了')
-            print(row)
+            netAdjacentList=getAdjacentFlow(row.转出地, row.转入地)
+            print(row.ID, netAdjacentList)
+            W_OR.loc[row.ID,netAdjacentList]=1
+        except Exception as ex:
+            print('ID={}出错'.format(row.ID))
+            print('发生错误{}'.format(ex))
+    print('正在保存')
     W_OR.dropna(axis=0,how='all').dropna(axis=1,how='all').fillna(value=0).to_excel('{}-resualt.xlsx'.format(flowData[:flowData.find('.')]))
 
 
